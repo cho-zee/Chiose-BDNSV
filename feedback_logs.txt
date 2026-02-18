@@ -1,0 +1,10 @@
+Q: Selectează utilizatorii ordonați după vârstă | SQL: SELECT id, name, email, signup_date AS estimated_age
+FROM users
+ORDER BY signup_date; | Feedback: in baza noastră de date nu exista coloana varsta sau data nasterii asa ca nu are sens sa ii ordonezi dupa varsta
+Q: Ordonează userii după vârstă. | SQL: SELECT id, name, email, signup_date
+FROM users
+ORDER BY signup_date; | Feedback: Nu avem coloana varsta, arata-mi doar numele lor simplu.
+Q: cate femei avem in baza de date? | SQL: SELECT COUNT(*) AS num_female_users
+FROM users
+WHERE name LIKE '%a%'; | Feedback: raspunsul a fost gresit. nu ai cum sa iti dai seama cate femei avem bazat doar pe datele actuale
+Q: Arată-mi produsele scumpe. | SQL: SELECT * FROM products ORDER BY price DESC; | Feedback: Nu vreau un top. Pentru mine "scump" înseamnă strict produsele care costă peste 500 de lei.
