@@ -22,7 +22,7 @@ This project implements a **Text-to-SQL system** that allows non-technical users
 The system follows a modular architecture integrating a Streamlit frontend with a LangChain processing backend.
 
 ### 2.1 High-Level Architecture Diagram
-![Diagram](.Diagram.png)
+![Diagram](Diagram.png)
 
 ### 2.2 Workflow Description
 1.  **Input:** User asks a question via Streamlit.
