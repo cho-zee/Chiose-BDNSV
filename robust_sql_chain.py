@@ -54,8 +54,7 @@ feedback_prompt = ChatPromptTemplate.from_messages([
     ("human", "Fix the query based on my feedback.")
 ])
 
-# D. Răspuns Final (Anti-Halucinații - MODIFICAT)
-# Am adăugat variabila {query} și reguli stricte de "Grounding"
+# D. Răspuns Final (Anti-Halucinații)
 answer_prompt = ChatPromptTemplate.from_template(
     """You are a data assistant. Read the SQL Query and the SQL Result to answer the User Question.
     
@@ -96,9 +95,8 @@ def execute_and_summarize(sql_query, user_question):
         result, error = run_query_safe(current_sql)
         
         if error is None:
-            # SUCCES - Pasăm și query-ul la promptul final pentru context
+            # SUCCES
             chain_answer = answer_prompt | llm | StrOutputParser()
-            # AICI E CHEIA: Trimitem 'query': current_sql
             final_answer = chain_answer.invoke({
                 "question": user_question, 
                 "result": result, 
@@ -106,7 +104,7 @@ def execute_and_summarize(sql_query, user_question):
             })
             return final_answer, current_sql
         else:
-            # EROARE TEHNICĂ
+            # EROARE TEHNICĂ - Auto-Corecție
             print(f"   ❌ Eroare tehnică: {error}")
             chain_fix = correction_prompt | llm | StrOutputParser()
             current_sql = clean_sql(chain_fix.invoke({
@@ -137,37 +135,3 @@ def feedback_generation(user_question, old_sql, user_feedback):
     }))
     
     return execute_and_summarize(new_sql, user_question)
-
-# --- UI PRINCIPAL ---
-
-if __name__ == "__main__":
-    print("--- SISTEM SQL ROBUST CU FEEDBACK LOOP ---")
-    
-    while True:
-        question = input("\nÎntrebare (sau 'exit'): ")
-        if question.lower() in ['exit', 'quit']:
-            break
-            
-        raspuns, sql_folosit = initial_generation(question)
-        
-        print(f"\n🤖 Răspuns AI: {raspuns}")
-        if sql_folosit:
-            print(f"💻 SQL Folosit: {sql_folosit}")
-            
-        if sql_folosit:
-            feedback_ok = input("\n👍 A fost util? (y/n): ")
-            
-            if feedback_ok.lower() == 'n':
-                motiv = input("Ce nu a fost bine? (pentru corecție): ")
-                
-                with open("feedback_logs.txt", "a", encoding="utf-8") as f:
-                    f.write(f"Q: {question} | SQL: {sql_folosit} | Feedback: {motiv}\n")
-                print(" -> Feedback salvat în logs.")
-                
-                print(" -> Se încearcă repararea răspunsului...")
-                raspuns_nou, sql_nou = feedback_generation(question, sql_folosit, motiv)
-                
-                print(f"\n🤖 Răspuns REVIZUIT: {raspuns_nou}")
-                print(f"💻 SQL NOU: {sql_nou}")
-            else:
-                print("Super! Mă bucur că am putut ajuta.")
