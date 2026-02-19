@@ -73,6 +73,7 @@ The system operates on a SQLite database (`test_db.sqlite`). Below is the Entity
 To start the web interface:
 ```bash
 streamlit run app.py
+```
 
 ---
 
@@ -81,6 +82,7 @@ streamlit run app.py
 ### 5.1 Self-Repair Mechanism (Auto-Correction)
 The system does not crash on SQL errors. Instead, it captures the database exception and feeds it back to the LLM to generate a corrected query.
 
+```
 for attempt in range(MAX_RETRIES):
     result, error = run_query_safe(current_sql)
     
@@ -94,16 +96,19 @@ for attempt in range(MAX_RETRIES):
             "error_message": error,
             "schema": schema_text
         }))
+```
 
 ### 5.2 Feedback Prompt
 This prompt enables the system to improve through user corrections within the session.
 
+```
 feedback_system = """You are an SQL assistant refining a query based on user feedback.
 Original Question: {question}
 Previous SQL (Rejected): {original_query}
 User Feedback (Why it was wrong): {feedback}
 Schema: {schema}
 INSTRUCTIONS: Adjust the SQL query to satisfy the user's feedback."""
+```
 
 ---
 
