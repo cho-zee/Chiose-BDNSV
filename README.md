@@ -73,3 +73,41 @@ The system operates on a SQLite database (`test_db.sqlite`). Below is the Entity
 To start the web interface:
 ```bash
 streamlit run app.py
+
+---
+
+## 5. Code Snippets
+
+### 5.1 Self-Repair Mechanism (Auto-Correction)
+The system does not crash on SQL errors. Instead, it captures the database exception and feeds it back to the LLM to generate a corrected query.
+
+for attempt in range(MAX_RETRIES):
+    result, error = run_query_safe(current_sql)
+    
+    if error is None:
+        return final_answer, current_sql
+    else:
+        # Error detected: Trigger Correction Prompt
+        chain_fix = correction_prompt | llm | StrOutputParser()
+        current_sql = clean_sql(chain_fix.invoke({
+            "original_query": current_sql,
+            "error_message": error,
+            "schema": schema_text
+        }))
+
+### 5.2 Feedback Prompt
+This prompt enables the system to improve through user corrections within the session.
+
+feedback_system = """You are an SQL assistant refining a query based on user feedback.
+Original Question: {question}
+Previous SQL (Rejected): {original_query}
+User Feedback (Why it was wrong): {feedback}
+Schema: {schema}
+INSTRUCTIONS: Adjust the SQL query to satisfy the user's feedback."""
+
+---
+
+## 6. Bibliographic References
+1. **LangChain Documentation** (2024) SQL Database Chains. Retrieved from https://python.langchain.com/docs/use_cases/sql/
+2. **OpenAI API Reference** (2024) Chat Completions API. Retrieved from https://platform.openai.com/docs/guides/chat
+3. **Streamlit Docs** (2024) Build conversational apps. Retrieved from https://docs.streamlit.io/
